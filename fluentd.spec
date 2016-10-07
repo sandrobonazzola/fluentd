@@ -10,7 +10,7 @@ License:        ASL 2.0
 URL:            http://fluentd.org/
 Source0:        https://rubygems.org/gems/%{gem_name}-%{version}.gem
 Source1:        fluentd.service
-
+Source2:        fluentd.logrotate
 BuildRequires:  ruby(release)
 BuildRequires:  rubygems-devel
 BuildRequires:  ruby >= 1.9.3
@@ -27,6 +27,7 @@ BuildRequires:  rubygem(http_parser.rb)
 BuildRequires:  rubygem(thread_safe)
 BuildRequires:  systemd
 
+Requires:       logrotate
 Requires:       rubygem-msgpack
 Requires:       rubygem-yajl-ruby
 Requires:       rubygem-cool.io
@@ -36,6 +37,8 @@ Requires:       rubygem-tzinfo
 Requires:       rubygem-tzinfo-data
 Requires:       rubygem-thread_safe
 Requires:       rubygem-string-scrub
+
+Requires(pre): shadow-utils
 
 Requires(post): systemd
 Requires(preun): systemd
@@ -88,6 +91,9 @@ find %{buildroot}%{gem_instdir}/bin -type f | xargs chmod a+x
 mkdir -p %{buildroot}%{_sysconfdir}/%{gem_name}
 mv %{buildroot}%{gem_instdir}/fluent.conf %{buildroot}%{_sysconfdir}/%{gem_name}
 
+mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d/fluentd
+install -p -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/fluentd
+
 mkdir -p %{buildroot}%{_unitdir}
 install -p -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}/
 
@@ -119,6 +125,7 @@ popd
 %dir %{_sysconfdir}/%{gem_name}
 %config(noreplace) %{_sysconfdir}/%{gem_name}/fluent.conf
 %dir %{_localstatedir}/cache/fluentd
+%config(noreplace) %{_sysconfdir}/logrotate.d/fluentd
 %doc %{gem_instdir}/AUTHORS
 %doc %{gem_instdir}/CONTRIBUTING.md
 %doc %{gem_instdir}/COPYING
@@ -153,6 +160,12 @@ exit 0
 %changelog
 * Thu Jun 23 2016 Martin Mágr <mmagr@redhat.com> - 0.12.26-1
 - Updated to upstream version 0.12.26
+
+* Tue May 24 2016 Andrey Bardin <a15y87@gmail.com> - 0.12.24-1
+- upgraded to 0.12.24
+
+* Tue May 17 2016 Andrey Bardin <a15y87@gmail.com> - 0.12.23-2
+- add logrotate config
 
 * Wed Jul 29 2015 Graeme Gillies <ggillies@redhat.com> - 0.12.5-3
 - Corrected ownership on executable files in /usr/bin
